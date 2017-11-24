@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/decorators">
+	 <decorator name="admin" page="admin_layout.jsp">
+		<pattern>/main/*</pattern>
+		<pattern>/login.do</pattern>
+		<pattern>/xq.do</pattern>
+	
+		
+	</decorator> 
+		
+    	
+    	
+  	
+   <!--  <decorator  name="votes" page="vote_layout.jsp">  
+  
+    	<pattern>/home/xcfgdetailes</pattern>
+   		<pattern>/home/xjjg</pattern>
+    	<pattern>/home/xjjg?*</pattern>
+   		<pattern>/home/vote</pattern>
+  		<pattern>/home/hxrmd</pattern>
+  		<pattern>/home/hxrmd?*</pattern>
+  		<pattern>/home/xjfa</pattern>
+  		<pattern>/home/xmmd</pattern>
+  		<pattern>/home/xcfg</pattern>
+  		<pattern>/home/hxrdetails</pattern>
+  		<pattern>/home/result</pattern>
+    </decorator> -->
+   
+</decorators>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="cat.mapper.ShopingMapper">   
+
+	<select id="getShopingAll" parameterType="java.util.HashMap" resultType="cat.beans.Shoping">
+	    SELECT * FROM `shoping` where adminId=#{id} ORDER BY money_time desc,id  
+	    
+	    <if test="all==1">
+           LIMIT 15
+        </if>
+	</select>
+	<!-- 查询天消费 -->
+	<select id="getShopingAll_date" parameterType="java.util.HashMap" resultType="cat.beans.Shoping">
+	    SELECT sum(money)money,money_time  money_time FROM `shoping` where adminId=#{id}  GROUP BY money_time  ORDER BY money_time desc 
+	     <if test="all==1">
+           LIMIT 15
+        </if>
+	</select>
+	<!-- 查询周消费 -->
+	<select id="getShopingAll_we" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    	select  SUM(money) money,left(s.money_time,4) y,weekofyear(s.money_time) w FROM shoping s where s.adminId=#{id} GROUP BY  y,w ORDER BY y DESC,w DESC  
+	    <if test="all==1">
+           LIMIT 15
+        </if>
+	</select>
+	<!-- 查询年消费 -->
+	<select id="getShopingAll_ye" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    select  SUM(money) money,left(s.money_time,4) y  FROM shoping s where s.adminId=#{id} GROUP BY  y ORDER BY y DESC   
+	     <if test="all==1">
+           LIMIT 15
+        </if>
+	</select>
+
+</mapper>

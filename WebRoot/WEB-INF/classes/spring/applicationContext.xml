@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+		
+		  <!-- 以扫描的方式,把组件纳入Spring管理 -->
+		  <context:component-scan base-package="cat" />
+		   
+		<!-- 配置数据源 -->
+		 <context:property-placeholder location="classpath:mydbconfig.properties"/>
+		 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		     <property name="driverClassName" value="${db.driver}"/>
+		     <property name="url" value="${db.url}"/>
+		     <property name="username" value="${db.username}"/>
+		     <property name="password" value="${db.password}"/>
+			 <property name="initialSize" value="10"/> 
+			 <property name="maxActive" value="500"/>	
+			 <property name="maxIdle" value="2"/>      
+			 <property name="minIdle" value="3"/>	 
+	    </bean>
+	    
+	    <!-- 配置SqlSessionFactory -->
+		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		    <property name="dataSource" ref="dataSource" />
+			<property name="configLocation" value="classpath:mybatis/SqlMapConfig.xml" /> 
+		</bean>
+		
+		<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+				<property name="basePackage" value="cat.mapper"/>
+				<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+		</bean>
+		
+		
+		
+		<!-- 配置事务管理器 -->
+	   <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+	 	 	<property name="dataSource" ref="dataSource"/>
+	   </bean>
+	   
+	   <aop:config>
+	  	  <aop:pointcut id="myTxPointCut"  expression="execution(* cat.service..*.*(..))" />  <!--配置事务在什么里,用dao开发的,就写在dao中.用mapper代理方式,就引导这里-->
+		  <aop:advisor advice-ref="txActive" pointcut-ref="myTxPointCut"/> 
+	   </aop:config>
+	   
+	  <tx:advice id="txActive" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" propagation="NOT_SUPPORTED"/>
+			<tx:method name="update*" propagation="REQUIRED"  />
+			<tx:method name="insert*" propagation="REQUIRED"  />
+			<tx:method name="add*" propagation="REQUIRED"  />
+			<tx:method name="del*" propagation="REQUIRED"  />
+			</tx:attributes>
+	  </tx:advice>
+	 
+		
+</beans>

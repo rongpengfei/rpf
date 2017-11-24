@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="cat.mapper.AdminMapper">   
+
+	<select id="getadmin_byid" resultType="cat.beans.AdminInfo">
+	    select * from admin 
+	</select>
+	<!-- 登陆用户 -->
+	 <select id="get_loginAdmin" parameterType="java.util.HashMap" resultType="cat.beans.AdminInfo">
+    		select id, name,pass  from admin where name=#{name}  and pass=#{pass}
+    </select>
+	
+	
+	
+	<select id="getadmin_byname" parameterType="String" resultType="cat.beans.AdminInfo">
+	    <!-- select * from admininfo where adminName like #{adminName}  //这样写不行,它会拼成 like '张' 这个样子 -->
+	   <!--  select * from admininfo where adminName like '%${value}%'  这样可以,但是注意,它有注入问题 -->
+	    select * from admininfo where adminName like #{adminName}  <!-- 解决注入问题  调用者传参类似  session.selectList("test.getadmin_byname","%张%"); -->
+    </select>
+    
+    <insert id="add_admin" parameterType="AdminInfo">
+      insert into admininfo(adminName,password) values(#{adminName},#{password})
+    </insert>
+    
+    <delete id="del_admin" parameterType="int">
+       delete from admininfo where id=#{id}
+    </delete>
+    
+    <update id="update_admin" parameterType="cat.beans.AdminInfo">
+       update admininfo set adminName=#{adminName},password=#{password} where id=#{id}
+    </update>
+    
+    <!-- 返回自增主键的插入 -->
+    <insert id="add_admin_id" parameterType="cat.beans.AdminInfo">
+      <selectKey order="AFTER" keyProperty="id" resultType="int">  <!--AFTER 表示数据在添加数据库以后,才能得到主键  -->
+         select last_insert_id()
+      </selectKey>
+     insert into admininfo(adminName,password) values(#{adminName},#{password})
+    </insert>
+    
+    <select id="query_adminall" resultType="cat.beans.AdminInfo">
+       select * from admininfo
+    </select>
+    
+    <select id="get_login" parameterType="java.util.HashMap" resultType="AdminInfo">
+    		select * from admininfo where adminName=#{name} and password=#{pwd}
+    </select>
+    
+    
+    <resultMap id="xxxxx" type="AdminInfo">
+    	<id property="id" column="id"/>     <!--对于id,要用id标签进行配置 -->
+    	<result property="adminName" column="name"/> <!--property里的值是实体类的属性  -->
+    	<result property="password" column="pwd"/>
+    </resultMap>
+    <select id="get_login1" parameterType="java.util.HashMap" resultMap="xxxxx">
+    		select id,adminName as name,password as pwd from admininfo where adminName=#{name} and password=#{pwd}
+    </select>
+    
+    <!-- 以下都是动态sql例子 -->
+    <!-- if -->
+    <select id="get_adminlist" parameterType="AdminInfo" resultType="AdminInfo">
+        select * from admininfo where 1=1
+        <if test="id!=0">
+             and id=#{id}
+        </if>
+        <if test="adminName!=null and adminName!='' ">
+              and adminName=#{adminName}
+        </if>
+        <if test=" password!=null and password!='' ">
+              and password=#{password}
+        </if>
+    </select>
+    
+    <!-- choose -->
+    <select id="choosetest" parameterType="AdminInfo" resultType="AdminInfo">
+           select * from admininfo where 1=1
+           <choose>
+               <when test="id!=0">
+               		and id=#{id}
+               </when>
+               <when test="password!=null">
+               		and password=#{password}
+               </when>
+               <otherwise>
+                  and adminName=#{adminName}
+               </otherwise>
+           </choose>
+    </select>
+    
+    <!-- foreach -->
+    <select id="foreachtest" resultType="AdminInfo" parameterType="list">
+     select * from admininfo where id in
+     <foreach collection="list" item="adminId" open="(" close=")" separator=",">
+     #{adminId}
+     </foreach>
+    </select>
+    
+    <select id="maptest" resultType="AdminInfo" parameterType="java.util.HashMap">
+    	 select * from admininfo where adminName like "%"#{adminName}"%" and id in
+    	 <foreach collection="idList" item="id" open="(" close=")" separator=",">
+    	   #{id}
+    	 </foreach>
+    </select>
+    
+    <!-- where例子 -->
+    <select id="wheretest" parameterType="AdminInfo" resultType="AdminInfo">
+        select * from admininfo
+        <where>
+            <include refid="panduanmimazhanghao"/>
+        </where>
+    </select>
+    
+    <sql id="panduanmimazhanghao">
+  		 <if test="id!=0">
+            and id=#{id}
+          </if>
+          <if test="adminName!=null and adminName!='' ">
+            and adminName=#{adminName}
+          </if>
+          <if test="password!=null and password!='' ">
+            and password=#{password}
+          </if>
+    </sql>
+    
+    <!-- set -->
+    
+    <update id="settest" parameterType="AdminInfo">
+       update admininfo
+       <set>
+          <if test="adminName!=null and adminName!='' ">
+             adminName=#{adminName}
+          </if>
+          <if test="password!=null and password!='' ">
+            password=#{password}
+          </if>
+       </set>
+       where id=#{id}
+    </update>
+
+
+
+</mapper>
