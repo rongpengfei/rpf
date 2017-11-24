@@ -29,7 +29,7 @@ public class AdminAction {
 	@Resource(name = "shopingMapper")
 	private ShopingMapper shop;
 
-	
+	 
 	@RequestMapping("/index.do.jsp")
 	public String  index(){
 		
